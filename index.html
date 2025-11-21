@@ -92,6 +92,42 @@
             color: transparent;
         }
 
+        #boss-1 {
+            background-image: url('orc.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        #boss-2 {
+            background-image: url('troll.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        #boss-3 {
+            background-image: url('esqueleto-mago.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        #boss-4 {
+            background-image: url('dragao-menor.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
         .boss-marker.draggable {
             cursor: grab;
             border-color: #ffeb3b;
@@ -1285,8 +1321,30 @@
             // Definir imagem do boss
             const bossImage = document.getElementById('bossImage');
             if (bossIndex === 0) {
-                // Primeiro boss usa a imagem do goblim
+                // Boss 1: Goblin
                 bossImage.style.backgroundImage = "url('goblim.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 1) {
+                // Boss 2: Orc
+                bossImage.style.backgroundImage = "url('orc.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 2) {
+                // Boss 3: Troll
+                bossImage.style.backgroundImage = "url('troll.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 3) {
+                // Boss 4: Esqueleto Mago
+                bossImage.style.backgroundImage = "url('esqueleto-mago.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 4) {
+                // Boss 5: Dragão Menor
+                bossImage.style.backgroundImage = "url('dragao-menor.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
             } else {
                 // Outros bosses usam o gradiente padrão com número
                 bossImage.style.backgroundImage = 'none';
