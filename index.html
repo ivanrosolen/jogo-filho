@@ -128,6 +128,15 @@
             color: transparent;
         }
 
+        #boss-7 {
+            background-image: url('dragao-anciao.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
         .boss-marker.draggable {
             cursor: grab;
             border-color: #ffeb3b;
@@ -1343,6 +1352,11 @@
             } else if (bossIndex === 4) {
                 // Boss 5: Dragão Menor
                 bossImage.style.backgroundImage = "url('dragao-menor.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 7) {
+                // Boss 8: Dragão Ancião
+                bossImage.style.backgroundImage = "url('dragao-anciao.png')";
                 bossImage.style.color = 'transparent';
                 bossImage.textContent = '';
             } else {
