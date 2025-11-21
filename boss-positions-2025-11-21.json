@@ -1,0 +1,70 @@
+{
+  "gameVersion": "1.0",
+  "timestamp": "2025-11-21T19:46:58.021Z",
+  "playerStartPosition": {
+    "x": 50,
+    "y": 500
+  },
+  "bossPositions": [
+    {
+      "bossIndex": 0,
+      "bossName": "Goblin Guerreiro",
+      "x": 41,
+      "y": 84
+    },
+    {
+      "bossIndex": 1,
+      "bossName": "Orc Selvagem",
+      "x": 266,
+      "y": 83
+    },
+    {
+      "bossIndex": 2,
+      "bossName": "Troll das Pedras",
+      "x": 553,
+      "y": 72
+    },
+    {
+      "bossIndex": 3,
+      "bossName": "Esqueleto Mago",
+      "x": 545,
+      "y": 271
+    },
+    {
+      "bossIndex": 4,
+      "bossName": "Dragão Menor",
+      "x": 308,
+      "y": 240
+    },
+    {
+      "bossIndex": 5,
+      "bossName": "Golem de Ferro",
+      "x": 145,
+      "y": 225
+    },
+    {
+      "bossIndex": 6,
+      "bossName": "Lich Sombrio",
+      "x": 16,
+      "y": 279
+    },
+    {
+      "bossIndex": 7,
+      "bossName": "Dragão Ancião",
+      "x": 147,
+      "y": 403
+    },
+    {
+      "bossIndex": 8,
+      "bossName": "Demônio das Trevas",
+      "x": 425,
+      "y": 401
+    },
+    {
+      "bossIndex": 9,
+      "bossName": "Lorde Supremo",
+      "x": 674,
+      "y": 443
+    }
+  ]
+}
