@@ -128,6 +128,24 @@
             color: transparent;
         }
 
+        #boss-5 {
+            background-image: url('golem-ferro.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        #boss-6 {
+            background-image: url('lich.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
         #boss-7 {
             background-image: url('dragao-anciao.png');
             background-size: cover;
@@ -1352,6 +1370,16 @@
             } else if (bossIndex === 4) {
                 // Boss 5: Dragão Menor
                 bossImage.style.backgroundImage = "url('dragao-menor.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 5) {
+                // Boss 6: Golem de Ferro
+                bossImage.style.backgroundImage = "url('golem-ferro.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 6) {
+                // Boss 7: Lich Sombrio
+                bossImage.style.backgroundImage = "url('lich.png')";
                 bossImage.style.color = 'transparent';
                 bossImage.textContent = '';
             } else if (bossIndex === 7) {
