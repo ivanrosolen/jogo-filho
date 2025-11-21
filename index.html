@@ -412,11 +412,23 @@
             padding: 20px;
             border-radius: 15px;
             display: flex;
-            gap: 15px;
+            gap: 20px;
             align-items: center;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            flex-wrap: wrap;
-            justify-content: center;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+        }
+
+        .controls-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .control-btn {
@@ -721,6 +733,20 @@
             100% { transform: scale(1.1); }
         }
 
+        /* Game Over Modal */
+        .game-over-content {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 25%, #8e44ad 50%, #2c3e50 75%, #34495e 100%) !important;
+        }
+
+        .game-over-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b) !important;
+        }
+
+        .game-over-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.6) !important;
+        }
+
         /* Edit Icon */
         .edit-icon {
             cursor: pointer;
@@ -840,14 +866,17 @@
     <div class="main-container">
         <!-- Game Info -->
         <div class="external-controls">
-            <div class="control-info">
-                <div>Jogador: <span id="playerName">Akira</span> <span class="edit-icon" onclick="editPlayerName()" title="Editar nome">✏️</span></div>
-                <div>Boss Atual: <span id="currentBoss">1</span>/10</div>
-                <div>Posição: <span id="playerPosition">Início</span></div>
+            <div class="controls-left">
+                <div class="control-info">
+                    <div>Jogador: <span id="playerName">Akira</span> <span class="edit-icon" onclick="editPlayerName()" title="Editar nome">✏️</span></div>
+                    <div>Boss Atual: <span id="currentBoss">1</span>/10</div>
+                    <div>Posição: <span id="playerPosition">Início</span></div>
+                </div>
             </div>
-            <button class="control-btn" onclick="movePlayer()">Lutar</button>
-            <button class="control-btn" id="audioToggle" onclick="toggleAudio()">🔊</button>
-            <button class="control-btn help-btn" onclick="showHelpModal()" title="Regras do jogo">❓</button>
+            <div class="controls-right">
+                <button class="control-btn" onclick="movePlayer()">Lutar</button>
+                <button class="control-btn help-btn" onclick="showHelpModal()" title="Regras do jogo">❓</button>
+            </div>
         </div>
 
         <!-- Game Container -->
@@ -913,6 +942,21 @@
                 <div>Glória Conquistada!</div>
             </div>
             <button class="victory-close-btn" onclick="closeVictoryModal()">Celebrar Vitória!</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="victory-modal" id="gameOverModal">
+        <div class="victory-content game-over-content" id="gameOverContent">
+            <div class="victory-title">💀 GAME OVER! 💀</div>
+            <div class="victory-subtitle" id="gameOverSubtitle">VOCÊ NÃO CONSEGUIU DERROTAR O BOSS!</div>
+            <div class="victory-achievement">☠️ AVENTURA ENCERRADA ☠️</div>
+            <div class="victory-stats" id="gameOverStats">
+                <div>Tentativas Esgotadas!</div>
+                <div>Boss Resistiu aos Ataques</div>
+                <div>Tente Novamente!</div>
+            </div>
+            <button class="victory-close-btn game-over-btn" onclick="closeGameOverModal()">Reiniciar Aventura</button>
         </div>
     </div>
 
@@ -1010,7 +1054,6 @@
 
         // Audio System
         let audioContext = null;
-        let isAudioEnabled = true;
 
         function initAudio() {
             if (!audioContext) {
@@ -1019,7 +1062,6 @@
         }
 
         function playDiceRollSound() {
-            if (!isAudioEnabled) return;
             initAudio();
 
             // Criar som de dados rolando
@@ -1045,7 +1087,6 @@
         }
 
         function playVictorySound() {
-            if (!isAudioEnabled) return;
             initAudio();
 
             // Tocar sequência de vitória (arpejo ascendente)
@@ -1069,7 +1110,6 @@
         }
 
         function playCriticalSound() {
-            if (!isAudioEnabled) return;
             initAudio();
 
             // Som de crítico - sequência dramática ascendente
@@ -1093,7 +1133,6 @@
         }
 
         function playOpportunitySound() {
-            if (!isAudioEnabled) return;
             initAudio();
 
             // Som de oportunidade - efeito elétrico/raio
@@ -1135,7 +1174,6 @@
         }
 
         function playCriticalOpportunitySound() {
-            if (!isAudioEnabled) return;
             initAudio();
 
             // Som épico para crítico + oportunidade - combinação dos dois
@@ -1319,7 +1357,6 @@
         }
 
         function playFinalVictorySound() {
-            if (!isAudioEnabled) return;
             initAudio();
 
             // Sequência épica de vitória - múltiplas camadas
@@ -1372,20 +1409,71 @@
         function showDefeat() {
             const victoryDiv = document.getElementById('victoryMessage');
 
-            victoryDiv.innerHTML = `<div style="background: linear-gradient(45deg, #e74c3c, #c0392b); color: white; padding: 20px; border-radius: 10px; margin-top: 20px; font-weight: bold; text-align: center;">💀 GAME OVER! 💀<br><br>Você não conseguiu derrotar o boss em ${maxAttemptsForCurrentBoss} tentativas!<br>O jogo será reiniciado.</div>`;
-
-            const restartBtn = document.createElement('button');
-            restartBtn.className = 'btn';
-            restartBtn.textContent = 'Reiniciar Jogo';
-            restartBtn.style.marginTop = '15px';
-            restartBtn.onclick = () => {
-                closeBattle();
-                resetGame();
-            };
-            victoryDiv.appendChild(restartBtn);
-
+            // Mostrar mensagem temporária no modal de batalha
+            victoryDiv.innerHTML = '<div style="background: linear-gradient(45deg, #e74c3c, #c0392b); color: white; padding: 20px; border-radius: 10px; margin-top: 20px; font-weight: bold; text-align: center;">💀 Preparando reinicio... 💀</div>';
             victoryDiv.style.display = 'block';
             document.getElementById('rollBtn').disabled = true;
+
+            // Mostrar modal de game over após delay
+            setTimeout(() => {
+                showGameOverModal();
+            }, 1500);
+        }
+
+        function showGameOverModal() {
+            const modal = document.getElementById('gameOverModal');
+            const boss = bosses[currentBossIndex];
+            
+            // Atualizar conteúdo específico
+            document.getElementById('gameOverSubtitle').textContent = `VOCÊ NÃO CONSEGUIU DERROTAR O ${boss.name.toUpperCase()}!`;
+            
+            const statsDiv = document.getElementById('gameOverStats');
+            statsDiv.innerHTML = `
+                <div>Tentativas: ${attackAttempts}/${maxAttemptsForCurrentBoss}</div>
+                <div>Boss: ${boss.name}</div>
+                <div>Vida Restante: ${boss.currentHealth}/${boss.maxHealth}</div>
+            `;
+            
+            // Adicionar shake no body
+            document.body.classList.add('shake-animation');
+            setTimeout(() => {
+                document.body.classList.remove('shake-animation');
+            }, 1500);
+            
+            // Mostrar modal
+            modal.style.display = 'flex';
+            
+            // Som de game over
+            playGameOverSound();
+        }
+
+        function closeGameOverModal() {
+            document.getElementById('gameOverModal').style.display = 'none';
+            closeBattle();
+            resetGame();
+        }
+
+        function playGameOverSound() {
+            initAudio();
+
+            // Som dramático de game over - sequência descendente
+            const gameOverNotes = [523.25, 466.16, 415.30, 369.99, 329.63]; // C5 para E4 - descendente
+
+            gameOverNotes.forEach((frequency, index) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.4, audioContext.currentTime + index * 0.3);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.3 + 0.6);
+
+                oscillator.type = 'sawtooth'; // Som mais sombrio
+                oscillator.start(audioContext.currentTime + index * 0.3);
+                oscillator.stop(audioContext.currentTime + index * 0.3 + 0.6);
+            });
         }
 
         function saveBossPositions() {
