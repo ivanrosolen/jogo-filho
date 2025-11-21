@@ -845,7 +845,7 @@
                 <div>Boss Atual: <span id="currentBoss">1</span>/10</div>
                 <div>Posição: <span id="playerPosition">Início</span></div>
             </div>
-            <button class="control-btn" onclick="movePlayer()">Mover para Próximo Boss</button>
+            <button class="control-btn" onclick="movePlayer()">Lutar</button>
             <button class="control-btn" id="audioToggle" onclick="toggleAudio()">🔊</button>
             <button class="control-btn help-btn" onclick="showHelpModal()" title="Regras do jogo">❓</button>
         </div>
@@ -920,14 +920,14 @@
     <div class="help-modal" id="helpModal">
         <div class="help-content">
             <button class="help-close" onclick="closeHelpModal()">×</button>
-            <div class="help-title">❓ REGRAS DO JOGO ❓</div>
-            
+            <div class="help-title">REGRAS DO JOGO</div>
+
             <div class="help-section">
                 <h3>🎲 Como Jogar</h3>
                 <p>Role o dado D20 para atacar os bosses. Cada ponto no dado causa 5 de dano.</p>
                 <p>Você tem um número limitado de tentativas por boss (3 + número do boss).</p>
             </div>
-            
+
             <div class="help-section">
                 <h3>⚡ Ataque de Oportunidade</h3>
                 <p><strong>Você tem 2 ataques de oportunidade por jogo!</strong></p>
@@ -936,14 +936,14 @@
                 <p>• Apenas 1 por boss</p>
                 <p>• Use estrategicamente!</p>
             </div>
-            
+
             <div class="help-section">
                 <h3>💥 Ataques Críticos</h3>
                 <p><strong>Críticos Naturais:</strong> Dados 17-20 causam dano triplo (3x)</p>
                 <p><strong>Triplo Mágico:</strong> 3 números iguais consecutivos → próximo ataque é crítico</p>
                 <p><strong>Combo Épico:</strong> Oportunidade + Crítico → próximo ataque é crítico</p>
             </div>
-            
+
             <div class="help-section">
                 <h3>🎯 Dicas Estratégicas</h3>
                 <p>• Guarde ataques de oportunidade para bosses difíceis</p>
@@ -1280,16 +1280,16 @@
 
         function showFinalVictoryModal() {
             const modal = document.getElementById('victoryModal');
-            
+
             // Adicionar shake no body
             document.body.classList.add('shake-animation');
             setTimeout(() => {
                 document.body.classList.remove('shake-animation');
             }, 1500);
-            
+
             // Mostrar modal
             modal.style.display = 'flex';
-            
+
             // Som épico de vitória final
             playFinalVictorySound();
         }
@@ -1714,7 +1714,7 @@
             boss.currentHealth = boss.maxHealth; // Reset boss health
 
             document.getElementById('bossName').textContent = boss.name;
-            
+
             // Definir imagem do boss
             const bossImage = document.getElementById('bossImage');
             if (bossIndex === 0) {
@@ -1779,7 +1779,7 @@
                 bossImage.style.fontSize = '24px';
                 bossImage.textContent = bossIndex + 1;
             }
-            
+
             updateHealthBar();
             updateAttemptsDisplay();
 
@@ -1865,7 +1865,7 @@
             if (nextAttackIsCritical || roll >= 17) {
                 damage *= 3; // Triplica o dano (pode ser sobre o valor já quadruplicado)
                 isCritical = true;
-                
+
                 // Se era um crítico forçado, consumir
                 if (nextAttackIsCritical) {
                     nextAttackIsCritical = false;
@@ -1910,7 +1910,7 @@
                 }, 500);
 
                 showSpecialAttackModal('critical', roll, damage);
-                
+
                 let criticalMessage = `Rolou <strong>${roll}</strong>! 💥 CRÍTICO! 💥`;
                 if (hasTripleRoll) {
                     criticalMessage += ` <span style="color: #f1c40f;">(TRIPLO ATIVADO)</span>`;
@@ -1956,7 +1956,7 @@
                 setTimeout(() => {
                     showFinalVictoryModal();
                 }, 1000);
-                
+
                 victoryDiv.innerHTML = '<div class="victory-message">🎉 Preparando celebração épica... 🎉</div>';
             } else {
                 victoryDiv.innerHTML = '<div class="victory-message">✅ Boss derrotado! Clique em "Continuar" para o próximo.</div>';
@@ -2043,7 +2043,7 @@
         // Initialize game when page loads
         window.onload = function() {
             initGame();
-            
+
             // Verificar parâmetro URL para teste
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('win') === 'true') {
