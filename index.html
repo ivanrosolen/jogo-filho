@@ -164,6 +164,15 @@
             color: transparent;
         }
 
+        #boss-9 {
+            background-image: url('lorde.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
         .boss-marker.draggable {
             cursor: grab;
             border-color: #ffeb3b;
@@ -1584,6 +1593,11 @@
             } else if (bossIndex === 8) {
                 // Boss 9: Demônio das Trevas
                 bossImage.style.backgroundImage = "url('demonio.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 9) {
+                // Boss 10: Lorde Supremo
+                bossImage.style.backgroundImage = "url('lorde.png')";
                 bossImage.style.color = 'transparent';
                 bossImage.textContent = '';
             } else {
