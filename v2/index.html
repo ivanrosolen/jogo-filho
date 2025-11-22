@@ -1226,17 +1226,20 @@
                 return;
             }
 
-            // Ativar o ataque de oportunidade para o próximo dado
-            isOpportunityAttackActive = true;
 
-            // Feedback visual
+
+            if (isOpportunityAttackActive===true) {
+
+              updateOpportunityButton()
+              isOpportunityAttackActive = false;
+              return
+            }
+
+            isOpportunityAttackActive = true;
             const opportunityBtn = document.getElementById('opportunityBtn');
             opportunityBtn.style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
             opportunityBtn.textContent = '⚡ ATIVADO - Role o dado!';
-            opportunityBtn.disabled = true;
 
-            // Mostrar mensagem
-            showTemporaryMessage('⚡ Ataque de Oportunidade ATIVADO! Próximo dado terá dano 4x!', 3000);
         }
 
         function updateOpportunityButton() {
