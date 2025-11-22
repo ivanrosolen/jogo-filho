@@ -1,0 +1,2164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini RPG Adventure</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%);
+            min-height: 100vh;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            border: 3px solid #333;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-map {
+            width: 100%;
+            height: 100%;
+            background-image: url('fundo.jpeg');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .player {
+            position: absolute;
+            width: 60px;
+            height: 35px;
+            background: #f39c12;
+            border-radius: 20px;
+            border: 3px solid #2c3e50;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 10px;
+            text-align: center;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .boss-marker {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #ff4757, #c44569);
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            animation: pulse 2s infinite;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        #boss-0 {
+            background-image: url('chefe01.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        #boss-1 {
+            background-image: url('chefe02.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        #boss-2 {
+            background-image: url('chefe03.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        #boss-3 {
+            background-image: url('chefe04.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        #boss-4 {
+            background-image: url('chefe05.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        #boss-5 {
+            background-image: url('chefe06.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        #boss-6 {
+            background-image: url('chefe07.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        #boss-7 {
+            background-image: url('chefe08.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        #boss-8 {
+            background-image: url('chefe09.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        #boss-9 {
+            background-image: url('chefe10.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+        }
+
+        .boss-marker.draggable {
+            cursor: grab;
+            border-color: #ffeb3b;
+            box-shadow: 0 4px 12px rgba(255, 235, 59, 0.7);
+        }
+
+        .boss-marker.draggable:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(255, 235, 59, 0.9);
+        }
+
+        .boss-marker.dragging {
+            cursor: grabbing;
+            transform: scale(1.2);
+            z-index: 1000;
+            opacity: 0.8;
+        }
+
+        .boss-marker.completed {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            opacity: 0.7;
+        }
+
+        .boss-marker.next {
+            animation: nextBoss 1s infinite alternate;
+        }
+
+        @keyframes nextBoss {
+            from { box-shadow: 0 4px 12px rgba(255, 71, 87, 0.5); }
+            to { box-shadow: 0 6px 20px rgba(255, 255, 0, 1); }
+        }
+
+        @keyframes shake {
+            0% { transform: translate(0); }
+            10% { transform: translate(-2px, -1px); }
+            20% { transform: translate(2px, 1px); }
+            30% { transform: translate(-1px, 2px); }
+            40% { transform: translate(1px, -2px); }
+            50% { transform: translate(-2px, 1px); }
+            60% { transform: translate(2px, -1px); }
+            70% { transform: translate(-1px, -2px); }
+            80% { transform: translate(1px, 2px); }
+            90% { transform: translate(-2px, -1px); }
+            100% { transform: translate(0); }
+        }
+
+        .shake-animation {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .critical-text {
+            text-align: center;
+            line-height: 1.3;
+            margin: 10px 0;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .battle-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(2px);
+        }
+
+        .battle-screen {
+          background: transparent;
+          padding: 20px;
+          border-radius: 0;
+          text-align: center;
+          color: #fff;
+          min-width: 330px;
+          box-shadow: none;
+          border: none;
+        }
+
+
+        .boss-info {
+            margin-bottom: 20px;
+        }
+
+        .boss-image-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .boss-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: linear-gradient(45deg, #ff4757, #c44569);
+        }
+
+        .boss-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .health-bar-container {
+            background: #333;
+            border-radius: 10px;
+            padding: 5px;
+            margin: 10px 0;
+        }
+
+        .health-bar {
+            height: 20px;
+            background: linear-gradient(90deg, #4ecdc4, #44a08d);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .health-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .dice-container {
+            margin: 20px 0;
+            position: relative;
+            height: 80px;
+        }
+
+        .dice {
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border: 2px solid #333;
+            border-radius: 10px;
+            display: inline-block;
+            position: relative;
+            margin: 0 auto;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .dice:hover {
+            transform: scale(1.05);
+        }
+
+        .dice-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .dice-rolling {
+            animation: roll 1s linear;
+        }
+
+        @keyframes roll {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(90deg) scale(1.2); }
+            50% { transform: rotate(180deg) scale(1); }
+            75% { transform: rotate(270deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .battle-buttons {
+            margin: 20px 0;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .game-ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 50;
+        }
+
+        .external-controls {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            justify-content: space-between;
+            flex-wrap: nowrap;
+        }
+
+        .controls-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(68, 160, 141, 0.4);
+        }
+
+        .control-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-right: 15px;
+        }
+
+        .victory-message {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .path-indicator {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 0, 0.7);
+            border-radius: 50%;
+            border: 2px solid #fff;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(255, 255, 0, 0.5); }
+            to { box-shadow: 0 0 20px rgba(255, 255, 0, 1); }
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            10%, 90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+        }
+
+        /* Special Attack Modal */
+        .special-attack-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .special-attack-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            border-radius: 20px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            color: white;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            animation: specialAttackPop 0.8s ease-out;
+        }
+
+        .special-attack-critical {
+            background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%);
+            border-color: #fff;
+        }
+
+        .special-attack-opportunity {
+            background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+            border-color: #fff;
+        }
+
+        .special-attack-combo {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 50%, #8e44ad 100%);
+            border-color: #fff;
+            animation: specialAttackCombo 1s ease-out;
+        }
+
+        .special-attack-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+            animation: titlePulse 2s infinite;
+        }
+
+        .special-attack-details {
+            font-size: 1.2em;
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+
+        .special-attack-damage {
+            font-size: 2em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            margin: 20px 0;
+        }
+
+        .special-attack-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .special-attack-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes specialAttackPop {
+            0% {
+                transform: scale(0.5) rotate(-10deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1) rotate(5deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes specialAttackCombo {
+            0% {
+                transform: scale(0.3) rotate(-20deg);
+                opacity: 0;
+                box-shadow: 0 0 0 rgba(231, 76, 60, 0.7);
+            }
+            30% {
+                transform: scale(1.2) rotate(10deg);
+                opacity: 0.9;
+                box-shadow: 0 0 30px rgba(231, 76, 60, 0.7);
+            }
+            70% {
+                transform: scale(0.9) rotate(-5deg);
+                opacity: 1;
+                box-shadow: 0 0 50px rgba(142, 68, 173, 0.7);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            }
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Victory Modal */
+        .victory-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            backdrop-filter: blur(10px);
+        }
+
+        .victory-content {
+            background: linear-gradient(135deg, #f1c40f 0%, #f39c12 25%, #e74c3c 50%, #9b59b6 75%, #3498db 100%);
+            padding: 60px 40px;
+            border-radius: 30px;
+            border: 6px solid #fff;
+            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            color: white;
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+            animation: victoryPop 1.5s ease-out;
+            transform-origin: center;
+        }
+
+        .victory-title {
+            font-size: 4em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7);
+            animation: victoryTitleShake 2s infinite;
+        }
+
+        .victory-subtitle {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            animation: victoryGlow 3s infinite alternate;
+        }
+
+        .victory-achievement {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin: 30px 0;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+            animation: victoryPulse 1.5s infinite alternate;
+        }
+
+        .victory-stats {
+            margin: 30px 0;
+            font-size: 1.3em;
+            line-height: 1.8;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        }
+
+        .victory-close-btn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 30px;
+            font-size: 1.4em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(39, 174, 96, 0.4);
+            text-transform: uppercase;
+        }
+
+        .victory-close-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.6);
+        }
+
+        @keyframes victoryPop {
+            0% {
+                transform: scale(0.3) rotate(-15deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1) rotate(5deg);
+                opacity: 0.9;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes victoryTitleShake {
+            0%, 100% { transform: translateX(0); }
+            10% { transform: translateX(-5px) rotate(-1deg); }
+            20% { transform: translateX(5px) rotate(1deg); }
+            30% { transform: translateX(-3px) rotate(-0.5deg); }
+            40% { transform: translateX(3px) rotate(0.5deg); }
+            50% { transform: translateX(-2px); }
+            60% { transform: translateX(2px); }
+            70% { transform: translateX(-1px); }
+            80% { transform: translateX(1px); }
+            90% { transform: translateX(0); }
+        }
+
+        @keyframes victoryGlow {
+            from { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); }
+            to { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 255, 255, 0.8); }
+        }
+
+        @keyframes victoryPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        /* Game Over Modal */
+        .game-over-content {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 25%, #8e44ad 50%, #2c3e50 75%, #34495e 100%) !important;
+        }
+
+        .game-over-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b) !important;
+        }
+
+        .game-over-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.6) !important;
+        }
+
+        /* Edit Icon */
+        .edit-icon {
+            cursor: pointer;
+            margin-left: 8px;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+            font-size: 14px;
+        }
+
+        .edit-icon:hover {
+            opacity: 1;
+        }
+
+        /* Help Button */
+        .help-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9) !important;
+            font-size: 18px;
+        }
+
+        .help-btn:hover {
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        /* Help Modal */
+        .help-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2500;
+            backdrop-filter: blur(5px);
+        }
+
+        .help-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            color: white;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: helpPop 0.6s ease-out;
+        }
+
+        .help-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .help-close:hover {
+            opacity: 1;
+        }
+
+        .help-title {
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .help-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .help-section h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.3em;
+            color: #ffeb3b;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .help-section p {
+            margin: 8px 0;
+            line-height: 1.4;
+            font-size: 0.95em;
+        }
+
+        .help-section strong {
+            color: #ffeb3b;
+        }
+
+        @keyframes helpPop {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Game Info -->
+        <div class="external-controls">
+            <div class="controls-left">
+                <div class="control-info">
+                    <div>Jogador: <span id="playerName">Akira</span> <span class="edit-icon" onclick="editPlayerName()" title="Editar nome">✏️</span></div>
+                    <div>Boss Atual: <span id="currentBoss">1</span>/10</div>
+                    <div>Posição: <span id="playerPosition">Início</span></div>
+                </div>
+            </div>
+            <div class="controls-right">
+                <button class="control-btn" onclick="movePlayer()">Lutar</button>
+                <button class="control-btn help-btn" onclick="showHelpModal()" title="Regras do jogo">❓</button>
+            </div>
+        </div>
+
+        <!-- Game Container -->
+        <div class="game-container">
+            <div class="game-map" id="gameMap">
+                <!-- Player -->
+                <div class="player" id="player"></div>
+            </div>        <!-- Battle Modal -->
+        <div class="battle-modal" id="battleModal">
+            <div class="battle-screen">
+                <div class="boss-info">
+                    <div class="boss-image-container" id="bossImageContainer">
+                        <div class="boss-image" id="bossImage"></div>
+                    </div>
+                    <div class="boss-name" id="bossName">Boss 1</div>
+                    <div class="health-bar-container">
+                        <div class="health-bar" id="healthBar">
+                            <div class="health-text" id="healthText">100/100</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 16px; color: #ffeb3b;">
+                        Tentativas Restantes: <span id="attemptsLeft">3</span>/<span id="maxAttempts">3</span>
+                    </div>
+                </div>
+
+                <div class="dice-container">
+                    <div class="dice" id="dice" onclick="rollDice()">
+                        <div class="dice-face" id="diceFace">🎲</div>
+                    </div>
+                    <div id="rollResult" style="margin-top: 10px; font-size: 18px; font-weight: bold;"></div>
+                </div>
+
+                <div class="battle-buttons">
+                    <button class="btn" id="rollBtn" onclick="rollDice()">Rolar Dado D20</button>
+                    <button class="btn" id="opportunityBtn" onclick="activateOpportunityAttack()" style="background: linear-gradient(45deg, #8e44ad, #9b59b6); margin-left: 10px;">⚡ Ataque de Oportunidade (2)</button>
+                </div>
+
+                <div id="victoryMessage" style="display: none;"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Special Attack Modal -->
+    <div class="special-attack-modal" id="specialAttackModal">
+        <div class="special-attack-content" id="specialAttackContent">
+            <button class="special-attack-close" onclick="closeSpecialAttackModal()">×</button>
+            <div class="special-attack-title" id="specialAttackTitle"></div>
+            <div class="special-attack-details" id="specialAttackDetails"></div>
+            <div class="special-attack-damage" id="specialAttackDamage"></div>
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div class="victory-modal" id="victoryModal">
+        <div class="victory-content" id="victoryContent">
+            <div class="victory-title">🎉 PARABÉNS! 🎉</div>
+            <div class="victory-subtitle">VOCÊ DERROTOU TODOS OS BOSSES!</div>
+            <div class="victory-achievement">⭐ MESTRE AVENTUREIRO ⭐</div>
+            <div class="victory-stats">
+                <div>Jornada Completa!</div>
+                <div>10 Bosses Derrotados</div>
+                <div>Glória Conquistada!</div>
+            </div>
+            <button class="victory-close-btn" onclick="closeVictoryModal()">Celebrar Vitória!</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="victory-modal" id="gameOverModal">
+        <div class="victory-content game-over-content" id="gameOverContent">
+            <div class="victory-title">💀 GAME OVER! 💀</div>
+            <div class="victory-subtitle" id="gameOverSubtitle">VOCÊ NÃO CONSEGUIU DERROTAR O BOSS!</div>
+            <div class="victory-achievement">☠️ AVENTURA ENCERRADA ☠️</div>
+            <div class="victory-stats" id="gameOverStats">
+                <div>Tentativas Esgotadas!</div>
+                <div>Boss Resistiu aos Ataques</div>
+                <div>Tente Novamente!</div>
+            </div>
+            <button class="victory-close-btn game-over-btn" onclick="closeGameOverModal()">Reiniciar Aventura</button>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="help-modal" id="helpModal">
+        <div class="help-content">
+            <button class="help-close" onclick="closeHelpModal()">×</button>
+            <div class="help-title">REGRAS DO JOGO</div>
+
+            <div class="help-section">
+                <h3>🎲 Como Jogar</h3>
+                <p>Role o dado D20 para atacar os bosses. Cada ponto no dado causa 5 de dano.</p>
+                <p>Você tem um número limitado de tentativas por boss (3 + número do boss).</p>
+            </div>
+
+            <div class="help-section">
+                <h3>⚡ Ataque de Oportunidade</h3>
+                <p><strong>Você tem 2 ataques de oportunidade por jogo!</strong></p>
+                <p>• Ative antes de rolar o dado</p>
+                <p>• Quadruplica o dano do ataque (4x)</p>
+                <p>• Apenas 1 por boss</p>
+                <p>• Use estrategicamente!</p>
+            </div>
+
+            <div class="help-section">
+                <h3>💥 Ataques Críticos</h3>
+                <p><strong>Críticos Naturais:</strong> Dados 17-20 causam dano triplo (3x)</p>
+                <p><strong>Triplo Mágico:</strong> 3 números iguais consecutivos → próximo ataque é crítico</p>
+                <p><strong>Combo Épico:</strong> Oportunidade + Crítico → próximo ataque é crítico</p>
+            </div>
+
+            <div class="help-section">
+                <h3>🎯 Dicas Estratégicas</h3>
+                <p>• Guarde ataques de oportunidade para bosses difíceis</p>
+                <p>• Combine oportunidade + crítico para máximo dano</p>
+                <p>• Observe os padrões dos dados para triplos</p>
+                <p>• Bosses têm mais vida conforme avança</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let currentBossIndex = 0;
+        let playerPosition = 0;
+        let isInBattle = false;
+        let isRolling = false;
+        let editMode = false;
+        let draggedBoss = null;
+        let dragOffset = { x: 0, y: 0 };
+
+        // Opportunity Attack System
+        let opportunityAttacksRemaining = 2;
+        let opportunityAttackUsedOnBoss = new Set(); // Track which bosses had opportunity attack used
+        let isOpportunityAttackActive = false;
+
+        // Critical Hit System
+        let nextAttackIsCritical = false;
+        let lastThreeRolls = [];
+        let hasTripleRoll = false;
+
+        // Boss data - health increases by 100 for each boss
+        const bosses = [
+            { name: "Goblin Guerreiro", maxHealth: 100, currentHealth: 100 },
+            { name: "Orc Selvagem", maxHealth: 200, currentHealth: 200 },
+            { name: "Troll das Pedras", maxHealth: 300, currentHealth: 300 },
+            { name: "Esqueleto Mago", maxHealth: 400, currentHealth: 400 },
+            { name: "Dragão Menor", maxHealth: 500, currentHealth: 500 },
+            { name: "Golem de Ferro", maxHealth: 600, currentHealth: 600 },
+            { name: "Lich Sombrio", maxHealth: 700, currentHealth: 700 },
+            { name: "Dragão Ancião", maxHealth: 800, currentHealth: 800 },
+            { name: "Demônio das Trevas", maxHealth: 900, currentHealth: 900 },
+            { name: "Lorde Supremo", maxHealth: 1000, currentHealth: 1000 }
+        ];
+
+        // Boss positions on the map (carregadas do arquivo boss-positions-2025-11-21.json)
+        const bossPositions = [
+            { x: 41, y: 84 },   // Boss 1 - Goblin Guerreiro
+            { x: 266, y: 83 },  // Boss 2 - Orc Selvagem
+            { x: 553, y: 72 },  // Boss 3 - Troll das Pedras
+            { x: 545, y: 271 }, // Boss 4 - Esqueleto Mago
+            { x: 308, y: 240 }, // Boss 5 - Dragão Menor
+            { x: 145, y: 225 }, // Boss 6 - Golem de Ferro
+            { x: 16, y: 279 },  // Boss 7 - Lich Sombrio
+            { x: 147, y: 403 }, // Boss 8 - Dragão Ancião
+            { x: 425, y: 401 }, // Boss 9 - Demônio das Trevas
+            { x: 674, y: 443 }  // Boss 10 - Lorde Supremo
+        ];
+
+        // Player start position
+        const startPosition = { x: 50, y: 500 };
+
+        // Player data
+        let playerName = 'Akira';
+
+        // Audio System
+        let audioContext = null;
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playDiceRollSound() {
+            initAudio();
+
+            // Criar som de dados rolando
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            // Som de dados - múltiplas frequências rápidas
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
+            oscillator.frequency.exponentialRampToValueAtTime(300, audioContext.currentTime + 0.2);
+            oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.3);
+            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.4);
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+            oscillator.type = 'square';
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        function playVictorySound() {
+            initAudio();
+
+            // Tocar sequência de vitória (arpejo ascendente)
+            const notes = [261.63, 329.63, 392.00, 523.25, 659.25]; // C4, E4, G4, C5, E5
+
+            notes.forEach((frequency, index) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.4, audioContext.currentTime + index * 0.15);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.15 + 0.4);
+
+                oscillator.type = 'sine';
+                oscillator.start(audioContext.currentTime + index * 0.15);
+                oscillator.stop(audioContext.currentTime + index * 0.15 + 0.4);
+            });
+        }
+
+        function playCriticalSound() {
+            initAudio();
+
+            // Som de crítico - sequência dramática ascendente
+            const criticalFreqs = [150, 250, 350, 500, 750]; // Frequências graves para agudas
+
+            criticalFreqs.forEach((frequency, index) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime + index * 0.08);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.08 + 0.3);
+
+                oscillator.type = 'sawtooth'; // Som mais agressivo
+                oscillator.start(audioContext.currentTime + index * 0.08);
+                oscillator.stop(audioContext.currentTime + index * 0.08 + 0.3);
+            });
+        }
+
+        function playOpportunitySound() {
+            initAudio();
+
+            // Som de oportunidade - efeito elétrico/raio
+            const oscillator1 = audioContext.createOscillator();
+            const oscillator2 = audioContext.createOscillator();
+            const gainNode1 = audioContext.createGain();
+            const gainNode2 = audioContext.createGain();
+
+            // Primeira camada - frequência principal
+            oscillator1.connect(gainNode1);
+            gainNode1.connect(audioContext.destination);
+
+            oscillator1.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator1.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+            oscillator1.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.2);
+            oscillator1.frequency.exponentialRampToValueAtTime(1000, audioContext.currentTime + 0.3);
+
+            gainNode1.gain.setValueAtTime(0.4, audioContext.currentTime);
+            gainNode1.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+
+            oscillator1.type = 'square';
+            oscillator1.start(audioContext.currentTime);
+            oscillator1.stop(audioContext.currentTime + 0.4);
+
+            // Segunda camada - harmonia
+            oscillator2.connect(gainNode2);
+            gainNode2.connect(audioContext.destination);
+
+            oscillator2.frequency.setValueAtTime(400, audioContext.currentTime + 0.1);
+            oscillator2.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.2);
+            oscillator2.frequency.exponentialRampToValueAtTime(300, audioContext.currentTime + 0.3);
+
+            gainNode2.gain.setValueAtTime(0.2, audioContext.currentTime + 0.1);
+            gainNode2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+
+            oscillator2.type = 'triangle';
+            oscillator2.start(audioContext.currentTime + 0.1);
+            oscillator2.stop(audioContext.currentTime + 0.4);
+        }
+
+        function playCriticalOpportunitySound() {
+            initAudio();
+
+            // Som épico para crítico + oportunidade - combinação dos dois
+            // Primeira parte - oportunidade
+            playOpportunitySound();
+
+            // Segunda parte - crítico (com delay)
+            setTimeout(() => {
+                const epicFreqs = [200, 300, 450, 600, 800, 1000];
+
+                epicFreqs.forEach((frequency, index) => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.6, audioContext.currentTime + index * 0.06);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.06 + 0.4);
+
+                    oscillator.type = 'sawtooth';
+                    oscillator.start(audioContext.currentTime + index * 0.06);
+                    oscillator.stop(audioContext.currentTime + index * 0.06 + 0.4);
+                });
+            }, 200);
+        }
+
+        function toggleAudio() {
+            isAudioEnabled = !isAudioEnabled;
+            const btn = document.getElementById('audioToggle');
+            btn.textContent = isAudioEnabled ? '🔊' : '🔇';
+            btn.style.background = isAudioEnabled ?
+                'linear-gradient(45deg, #27ae60, #2ecc71)' :
+                'linear-gradient(45deg, #95a5a6, #7f8c8d)';
+        }
+
+        function activateOpportunityAttack() {
+            // Verificar se pode usar o ataque de oportunidade
+            if (opportunityAttacksRemaining <= 0) {
+                alert('Você já usou todos os seus ataques de oportunidade!');
+                return;
+            }
+
+            if (opportunityAttackUsedOnBoss.has(currentBossIndex)) {
+                alert('Você já usou o ataque de oportunidade neste boss!');
+                return;
+            }
+
+            if (isRolling || attackAttempts >= maxAttemptsForCurrentBoss) {
+                return;
+            }
+
+            // Ativar o ataque de oportunidade para o próximo dado
+            isOpportunityAttackActive = true;
+
+            // Feedback visual
+            const opportunityBtn = document.getElementById('opportunityBtn');
+            opportunityBtn.style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
+            opportunityBtn.textContent = '⚡ ATIVADO - Role o dado!';
+            opportunityBtn.disabled = true;
+
+            // Mostrar mensagem
+            showTemporaryMessage('⚡ Ataque de Oportunidade ATIVADO! Próximo dado terá dano 4x!', 3000);
+        }
+
+        function updateOpportunityButton() {
+            const opportunityBtn = document.getElementById('opportunityBtn');
+            const canUseOnThisBoss = !opportunityAttackUsedOnBoss.has(currentBossIndex);
+            const hasAttacksRemaining = opportunityAttacksRemaining > 0;
+
+            if (!hasAttacksRemaining) {
+                opportunityBtn.textContent = '⚡ Ataque de Oportunidade (0)';
+                opportunityBtn.disabled = true;
+                opportunityBtn.style.background = 'linear-gradient(45deg, #95a5a6, #7f8c8d)';
+            } else if (!canUseOnThisBoss) {
+                opportunityBtn.textContent = `⚡ Já usado neste boss (${opportunityAttacksRemaining})`;
+                opportunityBtn.disabled = true;
+                opportunityBtn.style.background = 'linear-gradient(45deg, #95a5a6, #7f8c8d)';
+            } else {
+                opportunityBtn.textContent = `⚡ Ataque de Oportunidade (${opportunityAttacksRemaining})`;
+                opportunityBtn.disabled = false;
+                opportunityBtn.style.background = 'linear-gradient(45deg, #8e44ad, #9b59b6)';
+            }
+        }
+
+        function showSpecialAttackModal(type, roll, damage) {
+            const modal = document.getElementById('specialAttackModal');
+            const content = document.getElementById('specialAttackContent');
+            const title = document.getElementById('specialAttackTitle');
+            const details = document.getElementById('specialAttackDetails');
+            const damageElement = document.getElementById('specialAttackDamage');
+
+            // Reset classes
+            content.className = 'special-attack-content';
+
+            if (type === 'combo') {
+                content.classList.add('special-attack-combo');
+                title.innerHTML = '⚡💥 OPORTUNIDADE CRÍTICA! 💥⚡';
+                details.innerHTML = `
+                    <div>Dado rolado: <strong>${roll}</strong></div>
+                    <div style="margin-top: 10px; color: #ffeb3b;">🎯 Ataque de Oportunidade: 4x dano</div>
+                    <div style="color: #ffeb3b;">💥 Acerto Crítico: 3x dano adicional</div>
+                    <div style="margin-top: 10px; font-size: 1.1em; color: #fff;"><strong>MULTIPLICADOR TOTAL: 12x</strong></div>
+                `;
+                damageElement.textContent = `${damage} de DANO ÉPICO!`;
+                playCriticalOpportunitySound();
+            } else if (type === 'opportunity') {
+                content.classList.add('special-attack-opportunity');
+                title.innerHTML = '⚡ ATAQUE DE OPORTUNIDADE! ⚡';
+                details.innerHTML = `
+                    <div>Dado rolado: <strong>${roll}</strong></div>
+                    <div style="margin-top: 10px; color: #e8d5ff;">🎯 Momento perfeito para atacar!</div>
+                    <div style="color: #e8d5ff;">Dano quadruplicado por precisão!</div>
+                `;
+                damageElement.textContent = `${damage} de DANO!`;
+                playOpportunitySound();
+            } else if (type === 'critical') {
+                content.classList.add('special-attack-critical');
+                title.innerHTML = '💥 ACERTO CRÍTICO! 💥';
+                details.innerHTML = `
+                    <div>Dado rolado: <strong>${roll}</strong></div>
+                    <div style="margin-top: 10px; color: #fff3cd;">🎯 Acerto perfeito no ponto fraco!</div>
+                    <div style="color: #fff3cd;">Dano triplicado!</div>
+                `;
+                damageElement.textContent = `${damage} de DANO!`;
+                playCriticalSound();
+            }
+
+            // Mostrar modal
+            modal.style.display = 'flex';
+
+            // Auto-fechar após 3 segundos
+            setTimeout(() => {
+                closeSpecialAttackModal();
+            }, 3000);
+        }
+
+        function closeSpecialAttackModal() {
+            document.getElementById('specialAttackModal').style.display = 'none';
+        }
+
+        function showFinalVictoryModal() {
+            const modal = document.getElementById('victoryModal');
+
+            // Adicionar shake no body
+            document.body.classList.add('shake-animation');
+            setTimeout(() => {
+                document.body.classList.remove('shake-animation');
+            }, 1500);
+
+            // Mostrar modal
+            modal.style.display = 'flex';
+
+            // Som épico de vitória final
+            playFinalVictorySound();
+        }
+
+        function closeVictoryModal() {
+            document.getElementById('victoryModal').style.display = 'none';
+            closeBattle();
+        }
+
+        function editPlayerName() {
+            const newName = prompt('Digite o novo nome do seu aventureiro:', playerName);
+            if (newName && newName.trim()) {
+                playerName = newName.trim();
+                document.getElementById('playerName').textContent = playerName;
+                // Atualizar nome na bolinha do player
+                const player = document.getElementById('player');
+                player.textContent = playerName;
+            }
+        }
+
+        function showHelpModal() {
+            document.getElementById('helpModal').style.display = 'flex';
+        }
+
+        function closeHelpModal() {
+            document.getElementById('helpModal').style.display = 'none';
+        }
+
+        function playFinalVictorySound() {
+            initAudio();
+
+            // Sequência épica de vitória - múltiplas camadas
+            const victorySequence = [
+                [523.25, 659.25, 783.99, 1046.50], // C5, E5, G5, C6 - Acorde de Dó Maior
+                [587.33, 739.99, 880.00, 1174.66], // D5, F#5, A5, D6 - Acorde de Ré Maior
+                [659.25, 830.61, 987.77, 1318.51]  // E5, G#5, B5, E6 - Acorde de Mi Maior
+            ];
+
+            victorySequence.forEach((chord, chordIndex) => {
+                chord.forEach((frequency, noteIndex) => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + chordIndex * 0.4);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + chordIndex * 0.4 + 0.8);
+
+                    oscillator.type = 'sine';
+                    oscillator.start(audioContext.currentTime + chordIndex * 0.4);
+                    oscillator.stop(audioContext.currentTime + chordIndex * 0.4 + 0.8);
+                });
+            });
+        }
+
+        function getMaxAttemptsForBoss(bossIndex) {
+            // Boss 1 = 3 tentativas, Boss 2 = 4 tentativas, etc.
+            return 3 + bossIndex;
+        }
+
+        function updateAttemptsDisplay() {
+            const attemptsLeft = maxAttemptsForCurrentBoss - attackAttempts;
+            document.getElementById('attemptsLeft').textContent = attemptsLeft;
+            document.getElementById('maxAttempts').textContent = maxAttemptsForCurrentBoss;
+
+            // Mudar cor quando restam poucas tentativas
+            const attemptsLeftElement = document.getElementById('attemptsLeft');
+            if (attemptsLeft <= 1) {
+                attemptsLeftElement.style.color = '#e74c3c'; // Vermelho
+            } else if (attemptsLeft <= 2) {
+                attemptsLeftElement.style.color = '#f39c12'; // Laranja
+            } else {
+                attemptsLeftElement.style.color = '#2ecc71'; // Verde
+            }
+        }
+
+        function showDefeat() {
+            const victoryDiv = document.getElementById('victoryMessage');
+
+            // Mostrar mensagem temporária no modal de batalha
+            victoryDiv.innerHTML = '<div style="background: linear-gradient(45deg, #e74c3c, #c0392b); color: white; padding: 20px; border-radius: 10px; margin-top: 20px; font-weight: bold; text-align: center;">💀 Preparando reinicio... 💀</div>';
+            victoryDiv.style.display = 'block';
+            document.getElementById('rollBtn').disabled = true;
+
+            // Mostrar modal de game over após delay
+            setTimeout(() => {
+                showGameOverModal();
+            }, 1500);
+        }
+
+        function showGameOverModal() {
+            const modal = document.getElementById('gameOverModal');
+            const boss = bosses[currentBossIndex];
+
+            // Atualizar conteúdo específico
+            document.getElementById('gameOverSubtitle').textContent = `VOCÊ NÃO CONSEGUIU DERROTAR O ${boss.name.toUpperCase()}!`;
+
+            const statsDiv = document.getElementById('gameOverStats');
+            statsDiv.innerHTML = `
+                <div>Tentativas: ${attackAttempts}/${maxAttemptsForCurrentBoss}</div>
+                <div>Boss: ${boss.name}</div>
+                <div>Vida Restante: ${boss.currentHealth}/${boss.maxHealth}</div>
+            `;
+
+            // Adicionar shake no body
+            document.body.classList.add('shake-animation');
+            setTimeout(() => {
+                document.body.classList.remove('shake-animation');
+            }, 1500);
+
+            // Mostrar modal
+            modal.style.display = 'flex';
+
+            // Som de game over
+            playGameOverSound();
+        }
+
+        function closeGameOverModal() {
+            document.getElementById('gameOverModal').style.display = 'none';
+            closeBattle();
+            resetGame();
+        }
+
+        function playGameOverSound() {
+            initAudio();
+
+            // Som dramático de game over - sequência descendente
+            const gameOverNotes = [523.25, 466.16, 415.30, 369.99, 329.63]; // C5 para E4 - descendente
+
+            gameOverNotes.forEach((frequency, index) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.4, audioContext.currentTime + index * 0.3);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.3 + 0.6);
+
+                oscillator.type = 'sawtooth'; // Som mais sombrio
+                oscillator.start(audioContext.currentTime + index * 0.3);
+                oscillator.stop(audioContext.currentTime + index * 0.3 + 0.6);
+            });
+        }
+
+        function saveBossPositions() {
+            // Criar objeto com dados das posições dos bosses
+            const saveData = {
+                gameVersion: "1.0",
+                timestamp: new Date().toISOString(),
+                playerStartPosition: startPosition,
+                bossPositions: bossPositions.map((pos, index) => ({
+                    bossIndex: index,
+                    bossName: bosses[index].name,
+                    x: pos.x,
+                    y: pos.y
+                }))
+            };
+
+            // Converter para JSON formatado
+            const jsonData = JSON.stringify(saveData, null, 2);
+
+            // Criar blob e link para download
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            // Criar elemento de download temporário
+            const downloadLink = document.createElement('a');
+            downloadLink.href = url;
+            downloadLink.download = `boss-positions-${new Date().toISOString().split('T')[0]}.json`;
+            downloadLink.style.display = 'none';
+
+            // Adicionar ao DOM, clicar e remover
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+
+            // Limpar URL object
+            URL.revokeObjectURL(url);
+
+            // Feedback visual
+            const originalText = event.target.textContent;
+            event.target.textContent = '✅ Salvo!';
+            event.target.style.background = 'linear-gradient(45deg, #27ae60, #2ecc71)';
+
+            setTimeout(() => {
+                event.target.textContent = originalText;
+                event.target.style.background = 'linear-gradient(45deg, #9b59b6, #8e44ad)';
+            }, 2000);
+        }
+
+        function loadBossPositions() {
+            // Acionar o input de arquivo oculto
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Verificar se é um arquivo JSON
+            if (!file.name.endsWith('.json')) {
+                alert('Por favor, selecione um arquivo JSON válido.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    applyLoadedPositions(data);
+                } catch (error) {
+                    alert('Erro ao ler o arquivo. Verifique se é um JSON válido.');
+                    console.error('Erro ao parsear JSON:', error);
+                }
+            };
+            reader.readAsText(file);
+
+            // Limpar input para permitir recarregar o mesmo arquivo
+            event.target.value = '';
+        }
+
+        function showTemporaryMessage(message, duration = 3000) {
+            // Remover mensagem anterior se existir
+            const existingMessage = document.getElementById('temporary-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            // Criar nova mensagem
+            const messageDiv = document.createElement('div');
+            messageDiv.id = 'temporary-message';
+            messageDiv.textContent = message;
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-weight: bold;
+                font-size: 14px;
+                z-index: 1000;
+                animation: fadeInOut ${duration}ms ease-in-out;
+                pointer-events: none;
+            `;
+
+            // Adicionar ao DOM
+            document.body.appendChild(messageDiv);
+
+            // Remover após o tempo especificado
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, duration);
+        }
+
+        function applyLoadedPositions(data, silent = false) {
+            // Validar estrutura do arquivo
+            if (!data.bossPositions || !Array.isArray(data.bossPositions)) {
+                alert('Arquivo JSON não contém posições válidas dos bosses.');
+                return;
+            }
+
+            if (data.bossPositions.length !== bosses.length) {
+                alert(`O arquivo contém ${data.bossPositions.length} bosses, mas o jogo espera ${bosses.length} bosses.`);
+                return;
+            }
+
+            // Aplicar novas posições
+            data.bossPositions.forEach((bossData, index) => {
+                if (bossData.x !== undefined && bossData.y !== undefined) {
+                    bossPositions[index] = { x: bossData.x, y: bossData.y };
+
+                    // Atualizar posição visual do boss marker
+                    const bossMarker = document.getElementById(`boss-${index}`);
+                    if (bossMarker) {
+                        bossMarker.style.left = bossData.x + 'px';
+                        bossMarker.style.top = bossData.y + 'px';
+                    }
+                }
+            });
+
+            // Aplicar posição do player se existir
+            if (data.playerStartPosition) {
+                startPosition.x = data.playerStartPosition.x;
+                startPosition.y = data.playerStartPosition.y;
+
+                // Se não estiver em batalha, mover player para nova posição inicial
+                if (!isInBattle) {
+                    const player = document.getElementById('player');
+                    player.style.left = startPosition.x + 'px';
+                    player.style.top = startPosition.y + 'px';
+                }
+            }
+
+            // Feedback visual apenas se não for carregamento automático
+            if (!silent) {
+                const loadBtn = document.querySelector('button[onclick="loadBossPositions()"]');
+                if (loadBtn) {
+                    const originalText = loadBtn.textContent;
+                    loadBtn.textContent = '✅ Carregado!';
+                    loadBtn.style.background = 'linear-gradient(45deg, #27ae60, #2ecc71)';
+
+                    setTimeout(() => {
+                        loadBtn.textContent = originalText;
+                        loadBtn.style.background = 'linear-gradient(45deg, #e67e22, #d35400)';
+                    }, 2000);
+                }
+            }
+
+            console.log('Posições carregadas com sucesso:', data);
+        }
+
+        function toggleEditMode() {
+            editMode = !editMode;
+            const editBtn = document.getElementById('editBtn');
+            const bosses = document.querySelectorAll('.boss-marker');
+
+            if (editMode) {
+                editBtn.textContent = 'Sair da Edição';
+                editBtn.style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
+                bosses.forEach(boss => {
+                    boss.classList.add('draggable');
+                });
+            } else {
+                editBtn.textContent = 'Editar Posições';
+                editBtn.style.background = 'linear-gradient(45deg, #4ecdc4, #44a08d)';
+                bosses.forEach(boss => {
+                    boss.classList.remove('draggable');
+                });
+            }
+        }
+
+        function startDrag(e) {
+            if (!editMode) return;
+
+            e.preventDefault();
+            draggedBoss = e.target;
+            draggedBoss.classList.add('dragging');
+
+            const rect = draggedBoss.getBoundingClientRect();
+            const gameMapRect = document.getElementById('gameMap').getBoundingClientRect();
+
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function drag(e) {
+            if (!draggedBoss) return;
+
+            const gameMapRect = document.getElementById('gameMap').getBoundingClientRect();
+            let newX = e.clientX - gameMapRect.left - dragOffset.x;
+            let newY = e.clientY - gameMapRect.top - dragOffset.y;
+
+            // Limitar dentro do mapa
+            newX = Math.max(0, Math.min(newX, 760)); // 800 - 40 (largura do boss)
+            newY = Math.max(0, Math.min(newY, 560)); // 600 - 40 (altura do boss)
+
+            draggedBoss.style.left = newX + 'px';
+            draggedBoss.style.top = newY + 'px';
+        }
+
+        function stopDrag(e) {
+            if (!draggedBoss) return;
+
+            const bossIndex = parseInt(draggedBoss.getAttribute('data-boss-index'));
+            const newX = parseInt(draggedBoss.style.left);
+            const newY = parseInt(draggedBoss.style.top);
+
+            // Atualizar posição no array
+            bossPositions[bossIndex] = { x: newX, y: newY };
+
+            draggedBoss.classList.remove('dragging');
+            draggedBoss = null;
+
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        function updateBossStates() {
+            bossPositions.forEach((_, index) => {
+                const bossMarker = document.getElementById(`boss-${index}`);
+                if (bossMarker) {
+                    bossMarker.classList.remove('completed', 'next');
+
+                    if (index < currentBossIndex) {
+                        bossMarker.classList.add('completed');
+                    } else if (index === currentBossIndex) {
+                        bossMarker.classList.add('next');
+                    }
+                }
+            });
+        }
+
+        function initGame() {
+            const player = document.getElementById('player');
+            player.style.left = startPosition.x + 'px';
+            player.style.top = startPosition.y + 'px';
+            player.textContent = playerName; // Mostrar nome do player
+
+            // Criar markers e atualizar UI
+            createBossMarkers();
+            updateUI();
+        }        function createBossMarkers() {
+            const gameMap = document.getElementById('gameMap');
+
+            bossPositions.forEach((pos, index) => {
+                const bossMarker = document.createElement('div');
+                bossMarker.className = 'boss-marker';
+                bossMarker.style.left = pos.x + 'px';
+                bossMarker.style.top = pos.y + 'px';
+                bossMarker.textContent = index + 1;
+                bossMarker.id = `boss-${index}`;
+                bossMarker.setAttribute('data-boss-index', index);
+
+                // Event listeners para drag and drop
+                bossMarker.addEventListener('mousedown', startDrag);
+                bossMarker.onclick = (e) => {
+                    if (!editMode) {
+                        e.preventDefault();
+                        startBattle(index);
+                    }
+                };
+
+                gameMap.appendChild(bossMarker);
+            });
+
+            updateBossStates();
+        }        function movePlayer() {
+            if (isInBattle || currentBossIndex >= bosses.length) return;
+
+            const player = document.getElementById('player');
+            const targetPos = bossPositions[currentBossIndex];
+
+            // Animate player movement
+            player.style.left = targetPos.x + 'px';
+            player.style.top = targetPos.y + 'px';
+
+            playerPosition = currentBossIndex + 1;
+            updateUI();
+
+            // Auto start battle after movement
+            setTimeout(() => {
+                startBattle(currentBossIndex);
+            }, 500);
+        }
+
+        // Array de fundos para chefes
+        const bossBackgrounds = [
+          'fundo_chefe01.jpeg',
+          'fundo_chefe02.jpeg',
+          'fundo_chefe03.jpeg',
+          'fundo_chefe04.jpeg',
+          'fundo_chefe05.jpeg',
+          'fundo_chefe06.jpeg',
+          'fundo_chefe07.jpeg',
+          'fundo_chefe08.jpeg',
+          'fundo_chefe09.jpeg',
+          'fundo_chefe10.jpeg'
+        ];
+
+        function startBattle(bossIndex) {
+            if (isInBattle || editMode) return;
+
+            // Verificar se é o próximo boss na sequência
+            if (bossIndex !== currentBossIndex) {
+                alert(`Você deve derrotar o Boss ${currentBossIndex + 1} primeiro!`);
+                return;
+            }
+
+            isInBattle = true;
+            attackAttempts = 0; // Reset counter
+            maxAttemptsForCurrentBoss = getMaxAttemptsForBoss(bossIndex); // Calculate attempts for this boss
+
+            const boss = bosses[bossIndex];
+            boss.currentHealth = boss.maxHealth; // Reset boss health
+
+            document.getElementById('bossName').textContent = boss.name;
+
+            // Definir imagem do boss
+            const bossImage = document.getElementById('bossImage');
+            if (bossIndex === 0) {
+                // Boss 1: Goblin
+                bossImage.style.backgroundImage = "url('chefe01.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 1) {
+                // Boss 2: Orc
+                bossImage.style.backgroundImage = "url('chefe02.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 2) {
+                // Boss 3: Troll
+                bossImage.style.backgroundImage = "url('chefe03.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 3) {
+                // Boss 4: Esqueleto Mago
+                bossImage.style.backgroundImage = "url('chefe04.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 4) {
+                // Boss 5: Dragão Menor
+                bossImage.style.backgroundImage = "url('chefe05.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 5) {
+                // Boss 6: Golem de Ferro
+                bossImage.style.backgroundImage = "url('chefe06.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 6) {
+                // Boss 7: Lich Sombrio
+                bossImage.style.backgroundImage = "url('chefe07.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 7) {
+                // Boss 8: Dragão Ancião
+                bossImage.style.backgroundImage = "url('chefe08.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 8) {
+                // Boss 9: Demônio das Trevas
+                bossImage.style.backgroundImage = "url('chefe09.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else if (bossIndex === 9) {
+                // Boss 10: Lorde Supremo
+                bossImage.style.backgroundImage = "url('chefe10.png')";
+                bossImage.style.color = 'transparent';
+                bossImage.textContent = '';
+            } else {
+                // Outros bosses usam o gradiente padrão com número
+                bossImage.style.backgroundImage = 'none';
+                bossImage.style.background = 'linear-gradient(45deg, #ff4757, #c44569)';
+                bossImage.style.color = 'white';
+                bossImage.style.display = 'flex';
+                bossImage.style.alignItems = 'center';
+                bossImage.style.justifyContent = 'center';
+                bossImage.style.fontWeight = 'bold';
+                bossImage.style.fontSize = '24px';
+                bossImage.textContent = bossIndex + 1;
+            }
+
+            updateHealthBar();
+            updateAttemptsDisplay();
+
+             // Aplica fundo do chefe correspondente no modal
+            document.getElementById('battleModal').style.backgroundImage =
+              `url('${bossBackgrounds[bossIndex]}')`;
+            document.getElementById('battleModal').style.backgroundSize = 'cover';
+            document.getElementById('battleModal').style.backgroundPosition = 'center';
+
+            document.getElementById('battleModal').style.display = 'flex';
+            document.getElementById('rollResult').textContent = '';
+            document.getElementById('victoryMessage').style.display = 'none';
+            document.getElementById('rollBtn').disabled = false;
+
+            // Atualizar botão de ataque de oportunidade
+            updateOpportunityButton();
+        }        function rollDice() {
+            if (isRolling || attackAttempts >= maxAttemptsForCurrentBoss) return;
+
+            isRolling = true;
+            const dice = document.getElementById('dice');
+            const diceFace = document.getElementById('diceFace');
+            const rollBtn = document.getElementById('rollBtn');
+
+            // Tocar som de dados
+            playDiceRollSound();
+
+            rollBtn.disabled = true;
+            dice.classList.add('dice-rolling');
+
+            // Animate rolling
+            let rollCount = 0;
+            const rollInterval = setInterval(() => {
+                diceFace.textContent = Math.floor(Math.random() * 20) + 1;
+                rollCount++;
+
+                if (rollCount >= 10) {
+                    clearInterval(rollInterval);
+
+                    // Final roll
+                    const finalRoll = Math.floor(Math.random() * 20) + 1;
+                    diceFace.textContent = finalRoll;
+
+                    setTimeout(() => {
+                        dice.classList.remove('dice-rolling');
+                        processBattleTurn(finalRoll);
+                        isRolling = false;
+                        rollBtn.disabled = false;
+                    }, 300);
+                }
+            }, 100);
+        }
+
+        function processBattleTurn(roll) {
+            const boss = bosses[currentBossIndex];
+            let damage = roll * 5; // Each point = 5 damage
+            let isCritical = false;
+            let isOpportunity = isOpportunityAttackActive;
+
+            // Adicionar roll ao histórico
+            lastThreeRolls.push(roll);
+            if (lastThreeRolls.length > 3) {
+                lastThreeRolls.shift();
+            }
+
+            // Verificar se tirou 3 números iguais
+            if (lastThreeRolls.length === 3 && lastThreeRolls[0] === lastThreeRolls[1] && lastThreeRolls[1] === lastThreeRolls[2]) {
+                if (!hasTripleRoll) {
+                    hasTripleRoll = true;
+                    nextAttackIsCritical = true;
+                    showTemporaryMessage(`🎰 TRIPLO ${roll}! Próximo ataque será CRÍTICO!`, 4000);
+                }
+            }
+
+            // Aplicar multiplicador de ataque de oportunidade PRIMEIRO
+            if (isOpportunityAttackActive) {
+                damage *= 4; // Quadruplica o dano base
+
+                // Consumir o ataque de oportunidade
+                opportunityAttacksRemaining--;
+                opportunityAttackUsedOnBoss.add(currentBossIndex);
+                isOpportunityAttackActive = false;
+
+                // Resetar botão
+                updateOpportunityButton();
+            }
+
+            // Verificar críticos: forçado, natural (17-20) ou próximo garantido
+            if (nextAttackIsCritical || roll >= 17) {
+                damage *= 3; // Triplica o dano (pode ser sobre o valor já quadruplicado)
+                isCritical = true;
+
+                // Se era um crítico forçado, consumir
+                if (nextAttackIsCritical) {
+                    nextAttackIsCritical = false;
+                }
+            }
+
+            // Se foi oportunidade + crítico, o próximo ataque será crítico
+            if (isOpportunity && isCritical) {
+                nextAttackIsCritical = true;
+                showTemporaryMessage('⚡💥 COMBO ÉPICO! Próximo ataque será CRÍTICO!', 4000);
+            }
+
+            boss.currentHealth = Math.max(0, boss.currentHealth - damage);
+            attackAttempts++;
+
+            // Feedback visual especial para diferentes combinações
+            if (isOpportunity && isCritical) {
+                // Combo máximo: Oportunidade + Crítico - usar modal especial
+                document.body.classList.add('shake-animation');
+                setTimeout(() => {
+                    document.body.classList.remove('shake-animation');
+                }, 800);
+
+                showSpecialAttackModal('combo', roll, damage);
+                document.getElementById('rollResult').innerHTML = `Rolou <strong>${roll}</strong>! 💥⚡ COMBO DEVASTADOR! ⚡💥`;
+
+            } else if (isOpportunity) {
+                // Apenas oportunidade - usar modal especial
+                document.body.classList.add('shake-animation');
+                setTimeout(() => {
+                    document.body.classList.remove('shake-animation');
+                }, 600);
+
+                showSpecialAttackModal('opportunity', roll, damage);
+                document.getElementById('rollResult').innerHTML = `Rolou <strong>${roll}</strong>! ⚡ OPORTUNIDADE! ⚡`;
+
+            } else if (isCritical) {
+                // Apenas crítico - usar modal especial
+                document.body.classList.add('shake-animation');
+                setTimeout(() => {
+                    document.body.classList.remove('shake-animation');
+                }, 500);
+
+                showSpecialAttackModal('critical', roll, damage);
+
+                let criticalMessage = `Rolou <strong>${roll}</strong>! 💥 CRÍTICO! 💥`;
+                if (hasTripleRoll) {
+                    criticalMessage += ` <span style="color: #f1c40f;">(TRIPLO ATIVADO)</span>`;
+                    hasTripleRoll = false; // Consumir o triplo
+                }
+                document.getElementById('rollResult').innerHTML = criticalMessage;
+
+            } else {
+                // Ataque normal
+                document.getElementById('rollResult').innerHTML =
+                    `Rolou <strong>${roll}</strong>! Causou <strong>${damage}</strong> de dano!`;
+            }
+
+            updateHealthBar();
+            updateAttemptsDisplay();
+
+            if (boss.currentHealth <= 0) {
+                setTimeout(() => {
+                    showVictory();
+                }, 1000);
+            } else if (attackAttempts >= maxAttemptsForCurrentBoss) {
+                setTimeout(() => {
+                    showDefeat();
+                }, 1000);
+            }
+        }        function updateHealthBar() {
+            const boss = bosses[currentBossIndex];
+            const healthPercentage = (boss.currentHealth / boss.maxHealth) * 100;
+
+            document.getElementById('healthBar').style.width = healthPercentage + '%';
+            document.getElementById('healthText').textContent =
+                `${boss.currentHealth}/${boss.maxHealth}`;
+        }
+
+        function showVictory() {
+            const victoryDiv = document.getElementById('victoryMessage');
+
+            // Tocar som de vitória
+            playVictorySound();
+
+            if (currentBossIndex >= bosses.length - 1) {
+                // Vitória final - mostrar modal épico
+                setTimeout(() => {
+                    showFinalVictoryModal();
+                }, 1000);
+
+                victoryDiv.innerHTML = '<div class="victory-message">🎉 Preparando celebração épica... 🎉</div>';
+            } else {
+                victoryDiv.innerHTML = '<div class="victory-message">✅ Boss derrotado! Clique em "Continuar" para o próximo.</div>';
+
+                const continueBtn = document.createElement('button');
+                continueBtn.className = 'btn';
+                continueBtn.textContent = 'Continuar';
+                continueBtn.onclick = () => {
+                    closeBattle();
+                    currentBossIndex++;
+                    updateBossStates();
+                    if (currentBossIndex < bosses.length) {
+                        setTimeout(() => movePlayer(), 500);
+                    }
+                };
+                victoryDiv.appendChild(continueBtn);
+            }
+
+            victoryDiv.style.display = 'block';
+            document.getElementById('rollBtn').disabled = true;
+
+            updateBossStates();
+        }        function closeBattle() {
+            isInBattle = false;
+            document.getElementById('battleModal').style.display = 'none';
+        }
+
+        function setPlayerName() {
+            const newName = prompt('Digite o nome do seu aventureiro:', playerName);
+            if (newName && newName.trim()) {
+                playerName = newName.trim();
+                document.getElementById('playerName').textContent = playerName;
+                // Atualizar nome na bolinha do player
+                const player = document.getElementById('player');
+                player.textContent = playerName;
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('currentBoss').textContent = Math.min(currentBossIndex + 1, bosses.length);
+            document.getElementById('playerPosition').textContent =
+                playerPosition === 0 ? 'Início' : `Boss ${playerPosition}`;
+            document.getElementById('playerName').textContent = playerName;
+        }        function resetGame() {
+            currentBossIndex = 0;
+            playerPosition = 0;
+            isInBattle = false;
+            editMode = false;
+
+            // Reset edit mode
+            const editBtn = document.getElementById('editBtn');
+            if (editBtn) {
+                editBtn.textContent = 'Editar Posições';
+                editBtn.style.background = 'linear-gradient(45deg, #4ecdc4, #44a08d)';
+            }
+
+            // Reset all bosses
+            bosses.forEach(boss => {
+                boss.currentHealth = boss.maxHealth;
+            });
+
+            // Reset opportunity attack system
+            opportunityAttacksRemaining = 2;
+            opportunityAttackUsedOnBoss.clear();
+            isOpportunityAttackActive = false;
+
+            // Reset critical hit system
+            nextAttackIsCritical = false;
+            lastThreeRolls = [];
+            hasTripleRoll = false;
+
+            // Reset player position
+            const player = document.getElementById('player');
+            player.style.left = startPosition.x + 'px';
+            player.style.top = startPosition.y + 'px';
+
+            // Update boss states
+            updateBossStates();
+
+            closeBattle();
+            updateUI();
+        }
+
+        // Initialize game when page loads
+        window.onload = function() {
+            initGame();
+
+            // Verificar parâmetro URL para teste
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('win') === 'true') {
+                setTimeout(() => {
+                    showFinalVictoryModal();
+                }, 1000);
+            }
+        };
+    </script>
+</body>
+</html>
