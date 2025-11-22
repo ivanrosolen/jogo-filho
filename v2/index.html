@@ -913,9 +913,6 @@
         <div class="battle-modal" id="battleModal">
             <div class="battle-screen">
                 <div class="boss-info">
-                    <div class="boss-image-container" id="bossImageContainer">
-                        <div class="boss-image" id="bossImage"></div>
-                    </div>
                     <div class="boss-name" id="bossName">Boss 1</div>
                     <div class="health-bar-container">
                         <div class="health-bar" id="healthBar">
@@ -1045,16 +1042,16 @@
 
         // Boss data - health increases by 100 for each boss
         const bosses = [
-            { name: "Goblin Guerreiro", maxHealth: 100, currentHealth: 100 },
-            { name: "Orc Selvagem", maxHealth: 200, currentHealth: 200 },
-            { name: "Troll das Pedras", maxHealth: 300, currentHealth: 300 },
-            { name: "Esqueleto Mago", maxHealth: 400, currentHealth: 400 },
-            { name: "Dragão Menor", maxHealth: 500, currentHealth: 500 },
-            { name: "Golem de Ferro", maxHealth: 600, currentHealth: 600 },
-            { name: "Lich Sombrio", maxHealth: 700, currentHealth: 700 },
-            { name: "Dragão Ancião", maxHealth: 800, currentHealth: 800 },
-            { name: "Demônio das Trevas", maxHealth: 900, currentHealth: 900 },
-            { name: "Lorde Supremo", maxHealth: 1000, currentHealth: 1000 }
+            { name: "Lula de Olhos Tortos", maxHealth: 100, currentHealth: 100 },
+            { name: "Homem Palito Samurai", maxHealth: 200, currentHealth: 200 },
+            { name: "Katana Viva", maxHealth: 300, currentHealth: 300 },
+            { name: "Mago Mutante", maxHealth: 400, currentHealth: 400 },
+            { name: "Boneco Palito do Vento", maxHealth: 500, currentHealth: 500 },
+            { name: "Boneco Palito Berserker", maxHealth: 600, currentHealth: 600 },
+            { name: "Águia da Tesoura", maxHealth: 700, currentHealth: 700 },
+            { name: "Chefe 08", maxHealth: 800, currentHealth: 800 },
+            { name: "Chefe 09", maxHealth: 900, currentHealth: 900 },
+            { name: "Chefe 10", maxHealth: 1000, currentHealth: 1000 }
         ];
 
         // Boss positions on the map (carregadas do arquivo boss-positions-2025-11-21.json)
@@ -1550,75 +1547,6 @@
             }, 2000);
         }
 
-        function loadBossPositions() {
-            // Acionar o input de arquivo oculto
-            document.getElementById('fileInput').click();
-        }
-
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // Verificar se é um arquivo JSON
-            if (!file.name.endsWith('.json')) {
-                alert('Por favor, selecione um arquivo JSON válido.');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    applyLoadedPositions(data);
-                } catch (error) {
-                    alert('Erro ao ler o arquivo. Verifique se é um JSON válido.');
-                    console.error('Erro ao parsear JSON:', error);
-                }
-            };
-            reader.readAsText(file);
-
-            // Limpar input para permitir recarregar o mesmo arquivo
-            event.target.value = '';
-        }
-
-        function showTemporaryMessage(message, duration = 3000) {
-            // Remover mensagem anterior se existir
-            const existingMessage = document.getElementById('temporary-message');
-            if (existingMessage) {
-                existingMessage.remove();
-            }
-
-            // Criar nova mensagem
-            const messageDiv = document.createElement('div');
-            messageDiv.id = 'temporary-message';
-            messageDiv.textContent = message;
-            messageDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: rgba(0, 0, 0, 0.8);
-                color: white;
-                padding: 10px 20px;
-                border-radius: 8px;
-                font-weight: bold;
-                font-size: 14px;
-                z-index: 1000;
-                animation: fadeInOut ${duration}ms ease-in-out;
-                pointer-events: none;
-            `;
-
-            // Adicionar ao DOM
-            document.body.appendChild(messageDiv);
-
-            // Remover após o tempo especificado
-            setTimeout(() => {
-                if (messageDiv.parentNode) {
-                    messageDiv.remove();
-                }
-            }, duration);
-        }
-
         function applyLoadedPositions(data, silent = false) {
             // Validar estrutura do arquivo
             if (!data.bossPositions || !Array.isArray(data.bossPositions)) {
@@ -1676,25 +1604,6 @@
             console.log('Posições carregadas com sucesso:', data);
         }
 
-        function toggleEditMode() {
-            editMode = !editMode;
-            const editBtn = document.getElementById('editBtn');
-            const bosses = document.querySelectorAll('.boss-marker');
-
-            if (editMode) {
-                editBtn.textContent = 'Sair da Edição';
-                editBtn.style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
-                bosses.forEach(boss => {
-                    boss.classList.add('draggable');
-                });
-            } else {
-                editBtn.textContent = 'Editar Posições';
-                editBtn.style.background = 'linear-gradient(45deg, #4ecdc4, #44a08d)';
-                bosses.forEach(boss => {
-                    boss.classList.remove('draggable');
-                });
-            }
-        }
 
         function startDrag(e) {
             if (!editMode) return;
@@ -1711,38 +1620,6 @@
 
             document.addEventListener('mousemove', drag);
             document.addEventListener('mouseup', stopDrag);
-        }
-
-        function drag(e) {
-            if (!draggedBoss) return;
-
-            const gameMapRect = document.getElementById('gameMap').getBoundingClientRect();
-            let newX = e.clientX - gameMapRect.left - dragOffset.x;
-            let newY = e.clientY - gameMapRect.top - dragOffset.y;
-
-            // Limitar dentro do mapa
-            newX = Math.max(0, Math.min(newX, 760)); // 800 - 40 (largura do boss)
-            newY = Math.max(0, Math.min(newY, 560)); // 600 - 40 (altura do boss)
-
-            draggedBoss.style.left = newX + 'px';
-            draggedBoss.style.top = newY + 'px';
-        }
-
-        function stopDrag(e) {
-            if (!draggedBoss) return;
-
-            const bossIndex = parseInt(draggedBoss.getAttribute('data-boss-index'));
-            const newX = parseInt(draggedBoss.style.left);
-            const newY = parseInt(draggedBoss.style.top);
-
-            // Atualizar posição no array
-            bossPositions[bossIndex] = { x: newX, y: newY };
-
-            draggedBoss.classList.remove('dragging');
-            draggedBoss = null;
-
-            document.removeEventListener('mousemove', drag);
-            document.removeEventListener('mouseup', stopDrag);
         }
 
         function updateBossStates() {
@@ -1794,7 +1671,9 @@
             });
 
             updateBossStates();
-        }        function movePlayer() {
+        }
+
+        function movePlayer() {
             if (isInBattle || currentBossIndex >= bosses.length) return;
 
             const player = document.getElementById('player');
@@ -1815,16 +1694,16 @@
 
         // Array de fundos para chefes
         const bossBackgrounds = [
-          'fundo_chefe01.jpeg',
-          'fundo_chefe02.jpeg',
-          'fundo_chefe03.jpeg',
-          'fundo_chefe04.jpeg',
-          'fundo_chefe05.jpeg',
-          'fundo_chefe06.jpeg',
-          'fundo_chefe07.jpeg',
-          'fundo_chefe08.jpeg',
-          'fundo_chefe09.jpeg',
-          'fundo_chefe10.jpeg'
+          'chefe01.png',
+          'chefe02.png',
+          'chefe03.png',
+          'chefe04.png',
+          'chefe05.png',
+          'chefe06.png',
+          'chefe07.png',
+          'chefe08.png',
+          'chefe09.png',
+          'chefe10.png'
         ];
 
         function startBattle(bossIndex) {
@@ -1845,70 +1724,7 @@
 
             document.getElementById('bossName').textContent = boss.name;
 
-            // Definir imagem do boss
-            const bossImage = document.getElementById('bossImage');
-            if (bossIndex === 0) {
-                // Boss 1: Goblin
-                bossImage.style.backgroundImage = "url('chefe01.png')";
-                bossImage.style.color = 'transparent';
-                bossImage.textContent = '';
-            } else if (bossIndex === 1) {
-                // Boss 2: Orc
-                bossImage.style.backgroundImage = "url('chefe02.png')";
-                bossImage.style.color = 'transparent';
-                bossImage.textContent = '';
-            } else if (bossIndex === 2) {
-                // Boss 3: Troll
-                bossImage.style.backgroundImage = "url('chefe03.png')";
-                bossImage.style.color = 'transparent';
-                bossImage.textContent = '';
-            } else if (bossIndex === 3) {
-                // Boss 4: Esqueleto Mago
-                bossImage.style.backgroundImage = "url('chefe04.png')";
-                bossImage.style.color = 'transparent';
-                bossImage.textContent = '';
-            } else if (bossIndex === 4) {
-                // Boss 5: Dragão Menor
-                bossImage.style.backgroundImage = "url('chefe05.png')";
-                bossImage.style.color = 'transparent';
-                bossImage.textContent = '';
-            } else if (bossIndex === 5) {
-                // Boss 6: Golem de Ferro
-                bossImage.style.backgroundImage = "url('chefe06.png')";
-                bossImage.style.color = 'transparent';
-                bossImage.textContent = '';
-            } else if (bossIndex === 6) {
-                // Boss 7: Lich Sombrio
-                bossImage.style.backgroundImage = "url('chefe07.png')";
-                bossImage.style.color = 'transparent';
-                bossImage.textContent = '';
-            } else if (bossIndex === 7) {
-                // Boss 8: Dragão Ancião
-                bossImage.style.backgroundImage = "url('chefe08.png')";
-                bossImage.style.color = 'transparent';
-                bossImage.textContent = '';
-            } else if (bossIndex === 8) {
-                // Boss 9: Demônio das Trevas
-                bossImage.style.backgroundImage = "url('chefe09.png')";
-                bossImage.style.color = 'transparent';
-                bossImage.textContent = '';
-            } else if (bossIndex === 9) {
-                // Boss 10: Lorde Supremo
-                bossImage.style.backgroundImage = "url('chefe10.png')";
-                bossImage.style.color = 'transparent';
-                bossImage.textContent = '';
-            } else {
-                // Outros bosses usam o gradiente padrão com número
-                bossImage.style.backgroundImage = 'none';
-                bossImage.style.background = 'linear-gradient(45deg, #ff4757, #c44569)';
-                bossImage.style.color = 'white';
-                bossImage.style.display = 'flex';
-                bossImage.style.alignItems = 'center';
-                bossImage.style.justifyContent = 'center';
-                bossImage.style.fontWeight = 'bold';
-                bossImage.style.fontSize = '24px';
-                bossImage.textContent = bossIndex + 1;
-            }
+
 
             updateHealthBar();
             updateAttemptsDisplay();
@@ -1926,7 +1742,9 @@
 
             // Atualizar botão de ataque de oportunidade
             updateOpportunityButton();
-        }        function rollDice() {
+        }
+
+        function rollDice() {
             if (isRolling || attackAttempts >= maxAttemptsForCurrentBoss) return;
 
             isRolling = true;
@@ -1998,7 +1816,9 @@
             }
 
             // Verificar críticos: forçado, natural (17-20) ou próximo garantido
-            if (nextAttackIsCritical || roll >= 17) {
+
+            const urlParams1 = new URLSearchParams(window.location.search);
+            if (nextAttackIsCritical || roll >= 17 || urlParams1.get('crit') === 'true') {
                 damage *= 3; // Triplica o dano (pode ser sobre o valor já quadruplicado)
                 isCritical = true;
 

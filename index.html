@@ -1423,26 +1423,26 @@
         function showGameOverModal() {
             const modal = document.getElementById('gameOverModal');
             const boss = bosses[currentBossIndex];
-            
+
             // Atualizar conteúdo específico
             document.getElementById('gameOverSubtitle').textContent = `VOCÊ NÃO CONSEGUIU DERROTAR O ${boss.name.toUpperCase()}!`;
-            
+
             const statsDiv = document.getElementById('gameOverStats');
             statsDiv.innerHTML = `
                 <div>Tentativas: ${attackAttempts}/${maxAttemptsForCurrentBoss}</div>
                 <div>Boss: ${boss.name}</div>
                 <div>Vida Restante: ${boss.currentHealth}/${boss.maxHealth}</div>
             `;
-            
+
             // Adicionar shake no body
             document.body.classList.add('shake-animation');
             setTimeout(() => {
                 document.body.classList.remove('shake-animation');
             }, 1500);
-            
+
             // Mostrar modal
             modal.style.display = 'flex';
-            
+
             // Som de game over
             playGameOverSound();
         }
