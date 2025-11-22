@@ -859,6 +859,17 @@
                 opacity: 1;
             }
         }
+
+        #attemptsText {
+          background: rgba(0,0,0,0.6); /* Fundo escuro semi-transparente */
+          color: #fff;                 /* Texto branco */
+          border-radius: 7px;          /* Bordas arredondadas */
+          padding: 8px 18px;           /* Espaçamento interno */
+          font-size: 18px;             /* Fonte maior */
+          display: inline-block;       /* Mantém largura enxuta */
+          margin: 5px 0;              /* Espaço acima/abaixo */
+          box-shadow: 0 2px 8px rgba(0,0,0,0.25); /* Sombra suave */
+        }
     </style>
 </head>
 <body>
@@ -896,7 +907,7 @@
                             <div class="health-text" id="healthText">100/100</div>
                         </div>
                     </div>
-                    <div style="margin-top: 10px; font-size: 16px; color: #ffeb3b;">
+                    <div id="attemptsText" style="margin-top: 10px; font-size: 16px; color: #ffeb3b;">
                         Tentativas Restantes: <span id="attemptsLeft">3</span>/<span id="maxAttempts">3</span>
                     </div>
                 </div>
