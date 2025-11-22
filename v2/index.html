@@ -251,15 +251,15 @@
 
         .battle-screen {
           background: transparent;
-          padding: 20px;
+          padding: 25px;
           border-radius: 0;
           text-align: center;
           color: #fff;
-          min-width: 330px;
+          max-width: 350px;
           box-shadow: none;
+          width: 85%;
           border: none;
         }
-
 
         .boss-info {
             margin-bottom: 20px;
@@ -380,6 +380,21 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
         }
+
+        .btn-win {
+            background: linear-gradient(45deg, #4ecdc4, #7ad9c6);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+
 
         .btn:hover {
             transform: translateY(-2px);
@@ -878,7 +893,7 @@
         <div class="external-controls">
             <div class="controls-left">
                 <div class="control-info">
-                    <div onclick="editPlayerName()" style="cursor: pointer;">Jogador: <span id="playerName">Akira</span></div>
+                    <div onclick="editPlayerName()" style="cursor: pointer;">Jogador: <span id="playerName">Akira</span> ✏️</div>
                     <div>Boss Atual: <span id="currentBoss">1</span>/10</div>
                     <div>Posição: <span id="playerPosition">Início</span></div>
                 </div>
@@ -2080,11 +2095,11 @@
 
                 victoryDiv.innerHTML = '<div class="victory-message">🎉 Preparando celebração épica... 🎉</div>';
             } else {
-                victoryDiv.innerHTML = '<div class="victory-message">✅ Boss derrotado! Clique em "Continuar" para o próximo.</div>';
+                victoryDiv.innerHTML = '';
 
                 const continueBtn = document.createElement('button');
-                continueBtn.className = 'btn';
-                continueBtn.textContent = 'Continuar';
+                continueBtn.className = 'btn-win';
+                continueBtn.textContent = '🏆 Boss Derrotado! Continuar!';
                 continueBtn.onclick = () => {
                     closeBattle();
                     currentBossIndex++;
