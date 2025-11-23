@@ -1798,7 +1798,6 @@
                 if (!hasTripleRoll) {
                     hasTripleRoll = true;
                     nextAttackIsCritical = true;
-                    showTemporaryMessage(`🎰 TRIPLO ${roll}! Próximo ataque será CRÍTICO!`, 4000);
                 }
             }
 
@@ -1831,7 +1830,6 @@
             // Se foi oportunidade + crítico, o próximo ataque será crítico
             if (isOpportunity && isCritical) {
                 nextAttackIsCritical = true;
-                showTemporaryMessage('⚡💥 COMBO ÉPICO! Próximo ataque será CRÍTICO!', 4000);
             }
 
             boss.currentHealth = Math.max(0, boss.currentHealth - damage);
